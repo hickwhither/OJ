@@ -28,12 +28,11 @@
 
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-    <link href="https://fonts.googleapis.com/css2?family=Inter:ital,opsz,wght@0,14..32,100..900;1,14..32,100..900&display=swap" rel="stylesheet">
-
-    <meta name="msapplication-TileColor" content="#5F6267">
+    <link href="https://fonts.googleapis.com/css2?family=Montserrat:ital,wght@0,100..900;1,100..900&family=Noto+Sans:ital,wght@0,100..900;1,100..900&display=swap" rel="stylesheet">
+    <meta name="msapplication-TileColor" content="#070F2B">
     <meta name="msapplication-TileImage" content="/mstile-144x144.png">
     {# Chrome 39 for Android colour #}
-    <meta name="theme-color" content="#5F6267">
+    <meta name="theme-color" content="#070F2B">
     {% if og_image %}
         <meta property="og:image" content="{{ request.build_absolute_uri(og_image) }}">
     {% else %}
@@ -75,6 +74,31 @@
         </style>
     {% endif %}
     {% block media %}{% endblock %}
+
+    <!-- hihiihihihihhihi -->
+     {% if TOMCHIENXU_CUSTOM_THEME == "WINTER" %}
+        <style>
+            #page-container {
+                background-image: url("{{ static('tomchienxu-themes/winter/winter-tomchienxu.png') }}");
+                background-size: 100%;
+            }
+        </style>
+        <script src="{{ static('tomchienxu-themes/winter/snowstorm.js') }}"></script>
+
+        <script>
+            snowStorm.snowColor = "#99ccff";
+            snowStorm.flakesMaxActive = 70;
+            snowStorm.useTwinkleEffect = true;
+            snowStorm.followMouse = false;
+            snowStorm.snowStick = false;
+            snowStorm.useMeltEffect = true;
+            snowStorm.vMaxX = 3;
+            snowStorm.vMaxY = 3;
+            snowStorm.className = "unselectable";
+        </script>
+    {% endif %}
+
+
     {% if not INLINE_JQUERY %}
         <script src="{{ JQUERY_JS }}"></script>
     {% endif %}
@@ -223,11 +247,11 @@
             {% if request.organization is not defined %}
                 <li class="home-nav-element"><a href="{{ url('home') }}">{% include "site-logo-fragment.html" %}</a></li>
                 <li class="home-nav-element"><span class="nav-divider"></span></li>
-                <li class="home-menu-item"><a href="{{ url('home') }}" class="nav-home">{{ _('Home') }}</a></li>
+                <li class="home-menu-item"><a href="{{ url('home') }}" class="nav-home"><b>{{ _('Home') }}</b></a></li>
                 {% for node in mptt_tree(nav_bar) recursive %}
                     <li>
                         <a href="{{ node.path }}" class="nav-{{ node.key }}{% if node.key in nav_tab %} active{% endif %}">
-                            {{ _(node.label) }}
+                            <b>{{ _(node.label) }}</b>
                             {% if not node.is_leaf_node() %}
                                 <div class="nav-expand">&gt;</div>
                             {% endif %}
@@ -364,10 +388,9 @@
 
     {% block bodyend %}{% endblock %}
 
-    <footer>
-        <span id="footer-content">
-            <br>
-            {{_('proudly powered by %(dmoj)s, %(vnoj)s', dmoj=safe('<a style="color: #808080" href="https://dmoj.ca"><b>DMOJ</b></a>'),vnoj=safe('<a style="color: #808080" href="https://oj.vnoi.info"><b>VNOJ</b></a>'))}} |
+    <footer style="padding: 5px 0; align-content: center;">
+        <span id="footer-content" class="p-3">
+            {{_('Proudly powered by %(dmoj)s, %(vnoj)s', dmoj=safe('<a style="color: #808080" href="https://dmoj.ca"><b>DMOJ</b></a>'),vnoj=safe('<a style="color: #808080" href="https://oj.vnoi.info"><b>VNOJ</b></a>'))}} |
             {{_('TCOJ')}}
             {% if misc_config.footer %}
                 {{ misc_config.footer|safe }} |
