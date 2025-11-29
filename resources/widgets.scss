@@ -31,9 +31,17 @@
     white-space: nowrap;
     font-weight: 400;
     line-height: 1.4;
-    background: rgb(51, 122, 183) none repeat scroll 0 (0% / auto) padding-box border-box;
-    background: -webkit-linear-gradient(top, #337ab7 0, #265a88 100%) repeat-x;
-    background: linear-gradient(to bottom, #337ab7 0, #265a88 100%) repeat-x;
+    // background: rgb(51, 122, 183) none repeat scroll 0 (0% / auto) padding-box border-box;
+    // background: -webkit-linear-gradient(top, #337ab7 0, #265a88 100%) repeat-x;
+    // background: linear-gradient(to bottom, #337ab7 0, #265a88 100%) repeat-x;
+
+    // hihiihihihihihih
+    background-image: linear-gradient(to right, rgb(146, 144, 195), rgb(27, 26, 85));
+    background-size: 200% auto;
+    background-position: 100% 0;
+    transition: background-position 0.5s;
+    // hihiihihihihiihi
+
     border-radius: $widget_border_radius;
     padding: 6px 12px;
     display: block;
@@ -44,12 +52,16 @@
     font-size: $base_font_size;
 
     &:hover {
-        background: #265a88;
+        // background: #265a88;
+        //hihihihihihihiih
+        background-position: 0 0;
     }
 
     &:active {
         border-color: #245580;
-        background: #265a88;
+        // background: #265a88;
+        // hiihihihihihih
+        background-position: 0 0;
     }
 
     &.full {
