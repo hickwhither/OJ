@@ -18,7 +18,7 @@ from reversion import revisions
 from judge.comments import CommentedDetailView
 from judge.dblock import LockModel
 from judge.forms import BlogPostForm
-from judge.models import (BlogPost, BlogVote, Comment, Contest, Language,
+from judge.models import (BlogPost, BlogPostTag, BlogVote, Comment, Contest, Language,
                           Problem, Profile, Submission, Ticket)
 from judge.tasks.webhook import on_new_blogpost
 from judge.utils.cachedict import CacheDict
@@ -115,9 +115,15 @@ class PostListBase(ListView):
         return DiggPaginator(queryset, per_page, body=6, padding=2,
                              orphans=orphans, allow_empty_first_page=allow_empty_first_page, **kwargs)
 
+    def ignore_magazine_tag(self, queryset):
+        if settings.VNOJ_MAGAZINE_TAG_SLUG:
+            queryset = queryset.exclude(tags__slug=settings.VNOJ_MAGAZINE_TAG_SLUG)
+        return queryset
+
     def get_queryset(self):
         queryset = (BlogPost.objects.filter(visible=True, publish_on__lte=timezone.now())
                     .prefetch_related('authors__user', 'authors__display_badge'))
+        queryset = self.ignore_magazine_tag(queryset)
         if self.request.user.is_authenticated:
             profile = self.request.profile
             queryset = queryset.annotate(
@@ -140,12 +146,15 @@ class PostListBase(ListView):
 
 class ModernBlogList(PostListBase):
     template_name = 'blog/modern-list.html'
-    paginate_by = 3
     title = _('Blog')
+
+    def ignore_magazine_tag(self, queryset):
+        # we do not ignore magazine tag here
+        return queryset
 
     def get_queryset(self):
         queryset = super(ModernBlogList, self).get_queryset()
-        queryset = queryset.filter(organization=None)
+        queryset = queryset.filter(global_post=True)
 
         # Search functionality
         search_query = self.request.GET.get('q', '').strip()
@@ -156,17 +165,11 @@ class ModernBlogList(PostListBase):
                 Q(summary__icontains=search_query),
             )
 
-        # Filter functionality
-        filter_type = self.request.GET.get('filter', '').strip()
-        if filter_type == 'pinned':
-            queryset = queryset.filter(sticky=True)
-        elif filter_type == 'global':
-            queryset = queryset.filter(global_post=True)
-
         # Tag filter
         tag_slug = self.request.GET.get('tag', '').strip()
-        if tag_slug:
-            queryset = queryset.filter(tags__slug=tag_slug).distinct()
+        if not tag_slug and settings.VNOJ_MAGAZINE_TAG_SLUG:
+            tag_slug = settings.VNOJ_MAGAZINE_TAG_SLUG
+        queryset = queryset.filter(tags__slug=tag_slug).distinct()
 
         # Sort functionality
         sort_by = self.request.GET.get('sort', 'latest').strip()
@@ -204,11 +207,9 @@ class ModernBlogList(PostListBase):
         context['current_sort'] = self.request.GET.get('sort', 'latest')
         context['current_tag'] = self.request.GET.get('tag', '')
 
-        # Get all available tags (if tag model exists)
-        try:
-            from judge.models import BlogPostTag
-            context['tags'] = BlogPostTag.objects.all()
-        except (ImportError, AttributeError):
+        if settings.VNOJ_MAGAZINE_TAG_SLUG:
+            context['tags'] = BlogPostTag.objects.exclude(slug=settings.VNOJ_MAGAZINE_TAG_SLUG)
+        else:
             context['tags'] = []
 
         # Get vote information for each post
@@ -385,7 +386,10 @@ class BlogPostCreate(TitleMixin, CreateView):
             post = form.save()
             post.slug = remove_accents(self.request.user.username.lower())
             post.publish_on = timezone.now()
-            post.authors.add(self.request.user.profile)
+            if not form.cleaned_data.get('authors'):
+                post.authors.add(self.request.user.profile)
+            else:
+                post.authors.set(form.cleaned_data['authors'])
             post.save()
 
             revisions.set_comment(_('Created on site'))

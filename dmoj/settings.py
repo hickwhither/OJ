@@ -119,7 +119,9 @@ VNOJ_PRICE_PER_HOUR = 50
 
 VNOJ_LONG_QUEUE_ALERT_THRESHOLD = 10
 
-timezone = 'UTC'
+VNOJ_MAGAZINE_TAG_SLUG = None
+
+CELERY_TIMEZONE = 'UTC'
 
 # Some problems have a lot of testcases, and each testcase
 # has about 5~6 fields, so we need to raise this
@@ -380,7 +382,13 @@ else:
                         'redirects.Redirect',
                     ],
                 },
-                ('judge.BlogPost', 'fa-rss-square'),
+                {
+                    'model': 'judge.BlogPost',
+                    'icon': 'fa-rss-square',
+                    'children': [
+                        'judge.BlogPostTag',
+                    ],
+                },
                 {
                     'model': 'judge.Comment',
                     'icon': 'fa-comment-o',
