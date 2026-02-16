@@ -17,6 +17,8 @@ from judge.sitemap import sitemaps
 from judge.views import TitledTemplateView, api, blog, comment, contests, language, license, mailgun, organization, \
     preview, problem, problem_manage, ranked_submission, register, stats, status, submission, tag, tasks, ticket, \
     two_factor, user, widgets
+from judge.views.magazine import MagazinePage
+from judge.views.misc_config import MiscConfigEdit
 from judge.views.problem_data import ProblemDataView, ProblemSubmissionDiff, \
     problem_data_file, problem_init_view
 from judge.views.register import ActivationView, RegistrationView
@@ -432,12 +434,9 @@ urlpatterns = [
         path('progress', tasks.demo_progress),
     ])),
 
-    path(r'import_users/', include([
-        path(r'', user.ImportUsersView.as_view(), name='import_users'),
-        path(r'post_file/', user.import_users_post_file, name='import_users_post_file'),
-        path(r'submit/', user.import_users_submit, name='import_users_submit'),
-        path(r'sample/', user.sample_import_users, name='import_users_sample')
-    ])),
+    path('magazine/', MagazinePage.as_view(), name='magazine'),
+
+    path('misc_config/', MiscConfigEdit.as_view(), name='misc_config'),
 ]
 
 favicon_paths = ['apple-touch-icon-180x180.png', 'apple-touch-icon-114x114.png', 'android-chrome-72x72.png',
