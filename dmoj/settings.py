@@ -66,6 +66,33 @@ VNOJ_CP_COMMENT = 1   # Each comment vote equals 1 CP
 VNOJ_CP_TICKET = 10   # Each good ticket equals CP
 VNOJ_CP_PROBLEM = 20  # Each suggested problem equal 20 CP
 
+TICKET_AUTOFILL_REPLIES = [
+    {'en': 'No comments',
+     'vi': 'Không có nhận xét'},
+    {'en': 'Read the problem statement',
+     'vi': 'Đọc đề bài'},
+    {'en': 'Yes',
+     'vi': 'Có'},
+    {'en': 'No',
+     'vi': 'Không'},
+    {'en': 'Use English, please',
+     'vi': 'Vui lòng sử dụng tiếng Anh'},
+    {'en': 'Use Vietnamese, please',
+     'vi': 'Vui lòng sử dụng tiếng Việt'},
+    {'en': 'We could not understand your question',
+     'vi': 'Chúng tôi không hiểu câu hỏi của bạn'},
+    {'en': 'Read the global announcement',
+     'vi': 'Đọc thông báo chung'},
+    {'en': 'Unfortunately, we cannot answer this, as it will give you an unfair advantage',
+     'vi': 'Rất tiếc, chúng tôi không thể trả lời vì điều này sẽ tạo ra lợi thế không công bằng cho bạn'},
+    {'en': 'Your logic or calculations are incorrect, please check carefully',
+     'vi': 'Logic hoặc tính toán của bạn không chính xác, vui lòng kiểm tra lại'},
+    {'en': 'The examples and notes are correct',
+     'vi': 'Các ví dụ và ghi chú đều đúng'},
+    {'en': 'There is a queue of submissions being judged, please wait for your turn',
+     'vi': 'Đang có hàng đợi chấm bài, vui lòng chờ đến lượt của bạn'},
+]
+
 VNOJ_HOMEPAGE_TOP_USERS_COUNT = 5
 
 VNOJ_DISPLAY_RANKS = (
@@ -113,6 +140,9 @@ VNOJ_TAG_PROBLEM_MIN_RATING = 1900  # Minimum rating to be able to tag a problem
 VNOJ_SHOULD_BAN_FOR_CHEATING_IN_CONTESTS = False
 VNOJ_CONTEST_CHEATING_BAN_MESSAGE = 'Banned for multiple cheating offenses during contests'
 VNOJ_MAX_DISQUALIFICATIONS_BEFORE_BANNING = 3
+# Only count disqualifications from contests starting on or after this date.
+# Set to None to count all disqualifications regardless of date.
+VNOJ_BAN_COUNT_FROM_DATE = datetime.datetime(2026, 1, 1, tzinfo=datetime.timezone.utc)
 
 # List of subdomain that will be ignored in organization subdomain middleware
 VNOJ_IGNORED_ORGANIZATION_SUBDOMAINS = ['oj', 'www', 'localhost']
@@ -124,7 +154,18 @@ VNOJ_ENABLE_ORGANIZATION_CREDIT_LIMITATION = False
 VNOJ_MONTHLY_FREE_CREDIT = 3 * 60 * 60
 VNOJ_PRICE_PER_HOUR = 50
 
-
+# Organization quota limits
+VNOJ_ORGANIZATION_DEFAULT_MAX_PROBLEMS = 1000
+VNOJ_ORGANIZATION_DEFAULT_MAX_STORAGE = 5 * 1024 * 1024 * 1024  # 5GB
+# Suffix appended to every inline quota-warning message. May contain HTML (e.g. a link to a guide).
+# Example: ' <a href="https://example.com/quota-guide">Read our guide</a>.'
+VNOJ_QUOTA_WARNING_SUFFIX = ''
+VNOJ_QUOTA_WARNING_THRESHOLD = 0.8
+# When False, quota warnings are shown but users are NOT blocked from creating problems
+# or uploading test data. Set to True to enforce hard limits.
+VNOJ_QUOTA_ENFORCEMENT_ENABLED = False
+VNOJ_QUOTA_PACKAGE_STORAGE = 5 * 1024 * 1024 * 1024  # 5 GB per package
+VNOJ_QUOTA_PACKAGE_PROBLEMS = 1000  # problems per package
 VNOJ_LONG_QUEUE_ALERT_THRESHOLD = 10
 
 # Low power mode: Optimize queries by limiting data scope for performance
@@ -135,6 +176,9 @@ VNOJ_LOW_POWER_MODE_CONFIG = {
     # avoid drawing heat map for users with too many submissions
     'heat_map_limit': 20_000,
 }
+
+# maximum number of problems in a contest
+MAX_CONTEST_PROBLEMS_COUNT = None
 
 VNOJ_MAGAZINE_TAG_SLUG = None
 
@@ -226,6 +270,12 @@ DMOJ_PROBLEM_MAX_MEMORY_LIMIT = 1048576  # kilobytes
 DMOJ_PROBLEM_MIN_PROBLEM_POINTS = 0
 DMOJ_PROBLEM_HOT_PROBLEM_COUNT = 7
 
+# Grace period before a soft-deleted problem is permanently removed
+VNOJ_PROBLEM_DELETION_GRACE_PERIOD = datetime.timedelta(days=7)
+# Maximum time the garbage collection task is allowed to run per invocation
+VNOJ_PROBLEM_GARBAGE_COLLECTOR_TIME_LIMIT = datetime.timedelta(hours=1)
+VNOJ_PROBLEM_GARBAGE_COLLECTOR_CRONTAB_KWARGS = {'minute': 0, 'hour': 0}
+
 DMOJ_PROBLEM_STATEMENT_DISALLOWED_CHARACTERS = {'“', '”', '‘', '’', '−', 'ﬀ', 'ﬁ', 'ﬂ', 'ﬃ', 'ﬄ'}
 DMOJ_RATING_COLORS = True
 DMOJ_EMAIL_THROTTLING = (10, 60)
@@ -267,6 +317,7 @@ DMOJ_STATS_LANGUAGE_THRESHOLD = 10
 DMOJ_STATS_SUBMISSION_RESULT_COLORS = {
     'TLE': '#a3bcbd',
     'AC': '#00a92a',
+    'PAC': '#c0e000',
     'WA': '#ed4420',
     'CE': '#42586d',
     'ERR': '#ffa71c',
@@ -719,6 +770,7 @@ EVENT_DAEMON_KEY = None
 EVENT_DAEMON_AMQP_EXCHANGE = 'dmoj-events'
 EVENT_DAEMON_SUBMISSION_KEY = '6Sdmkx^%pk@GsifDfXcwX*Y7LRF%RGT8vmFpSxFBT$fwS7trc8raWfN#CSfQuKApx&$B#Gh2L7p%W!Ww'
 EVENT_DAEMON_CONTEST_KEY = '&w7hB-.9WnY2Jj^Qm+|?o6a<!}_2Wiw+?(_Yccqq{uR;:kWQP+3R<r(ICc|4^dDeEuJE{*D;Gg@K(4K>'
+EVENT_DAEMON_TICKET_KEY = '@R3DjH&egtm0HNhok6ERIMK!zlTzq2hrSGG2Se8SujCoO(2NX!DkbzcgQtm90FHDvpFM3gJ&D7acS$ta'
 
 # Internationalization
 # https://docs.djangoproject.com/en/4.2/topics/i18n/
@@ -786,6 +838,8 @@ SOCIAL_AUTH_PROTECTED_USER_FIELDS = ['first_name', 'last_name']
 IP_BASED_AUTHENTICATION_HEADER = 'REMOTE_ADDR'
 
 MOSS_API_KEY = None
+MOSS_HOST = 'moss.stanford.edu'
+MOSS_PORT = 7690
 
 CELERY_WORKER_HIJACK_ROOT_LOGGER = False
 

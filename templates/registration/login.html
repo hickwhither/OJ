@@ -10,6 +10,14 @@
                     {% for error in form.non_field_errors() %}
                         <p class="error">{{error}}</p>
                     {% endfor %}
+                    {% if form.cheating_contests %}
+                        <p>{{ _('Disqualified contests:') }}</p>
+                        <ul>
+                            {% for participation in form.cheating_contests %}
+                                <li><a href="{{ url('contest_view', participation.contest.key) }}">{{ participation.contest.name }}</a></li>
+                            {% endfor %}
+                        </ul>
+                    {% endif %}
                 </div>
             {% endif %}
             <table border="0" style="text-align:left">

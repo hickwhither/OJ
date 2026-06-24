@@ -17,11 +17,12 @@ from django.forms import BooleanField, CharField, ChoiceField, DateInput, Form, 
 from django.forms.widgets import DateTimeInput
 from django.template.defaultfilters import filesizeformat
 from django.urls import reverse, reverse_lazy
+from django.utils import timezone
 from django.utils.text import format_lazy
 from django.utils.translation import gettext_lazy as _, ngettext_lazy
 
-from judge.models import BlogPost, Contest, ContestAnnouncement, ContestProblem, Language, LanguageLimit, \
-    Organization, Problem, Profile, Solution, Submission, Tag, WebAuthnCredential
+from judge.models import BlogPost, Contest, ContestAnnouncement, ContestParticipation, ContestProblem, Language, \
+    LanguageLimit, Organization, Problem, Profile, Solution, Submission, Tag, WebAuthnCredential
 from judge.utils.subscription import newsletter_id
 from judge.widgets import AceWidget, HeavySelect2MultipleWidget, HeavySelect2Widget, MartorWidget, \
     Select2MultipleWidget, Select2Widget
@@ -501,6 +502,35 @@ class OrganizationForm(ModelForm):
             self.fields.pop('monthly_free_credit_limit')
 
 
+class QuotaGrantForm(Form):
+    start_date = forms.DateField(
+        widget=DateInput(attrs={'type': 'date'}),
+        label=_('Start date'),
+        initial=lambda: timezone.now().date(),
+    )
+    packages = forms.IntegerField(
+        min_value=1,
+        initial=1,
+        label=_('Number of packages'),
+        help_text=_('Each package adds %(storage)s and %(problems)d problems.') % {
+            'storage': filesizeformat(settings.VNOJ_QUOTA_PACKAGE_STORAGE),
+            'problems': settings.VNOJ_QUOTA_PACKAGE_PROBLEMS,
+        },
+    )
+    end_date = forms.DateField(
+        widget=DateInput(attrs={'type': 'date'}),
+        label=_('End date'),
+    )
+
+    def clean(self):
+        cleaned_data = super().clean()
+        start = cleaned_data.get('start_date')
+        end = cleaned_data.get('end_date')
+        if start and end and end <= start:
+            raise ValidationError(_('End date must be after start date.'))
+        return cleaned_data
+
+
 class SocialAuthMixin:
     def _has_social_auth(self, key):
         return (getattr(settings, 'SOCIAL_AUTH_%s_KEY' % key, None) and
@@ -537,6 +567,12 @@ class CustomAuthenticationForm(AuthenticationForm, SocialAuthMixin):
 
     def confirm_login_allowed(self, user):
         if user.profile.is_banned:
+            if user.profile.ban_reason == settings.VNOJ_CONTEST_CHEATING_BAN_MESSAGE:
+                self.cheating_contests = ContestParticipation.objects.filter(
+                    user=user.profile,
+                    contest__is_organization_private=False,
+                    is_disqualified=True,
+                ).select_related('contest').order_by('contest__end_time')
             raise forms.ValidationError(
                 _('This account has been banned. Reason: %s') % user.profile.ban_reason,
                 code='banned',
@@ -680,7 +716,7 @@ class ProposeContestProblemForm(ModelForm):
         self.user = kwargs.pop('user', None)
         super(ProposeContestProblemForm, self).__init__(*args, **kwargs)
 
-        self.fields['problem'].queryset = Problem.get_visible_problems(self.user)
+        self.fields['problem'].queryset = Problem.get_visible_problems(self.user, include_deleted=True)
 
     class Meta:
         model = ContestProblem
@@ -705,7 +741,19 @@ class ProposeContestProblemFormSet(
             ContestProblem,
             form=ProposeContestProblemForm,
             can_delete=True,
+            max_num=settings.MAX_CONTEST_PROBLEMS_COUNT,
+            validate_max=True,
         )):
+
+    def full_clean(self):
+        # Django < 5.0 doesn't support override the too_many_forms message in the constructor.
+        # So we have to do it ourselves
+        super().full_clean()
+
+        for error in self._non_form_errors.as_data():
+            if error.code == 'too_many_forms':
+                error.message = _('Contest cannot have more than %(limit)d problems.') % \
+                    {'limit': self.max_num}
 
     def clean(self) -> None:
         """Checks that no Contest problems have the same order."""

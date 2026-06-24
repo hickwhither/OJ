@@ -212,7 +212,7 @@ class UserAboutPage(UserPage):
         timezone_offset = pytz.timezone(user_timezone).utcoffset(datetime.datetime.utcnow()).seconds
 
         submissions_count = self.object.submission_set.count()
-        if submissions_count > settings.VNOJ_LOW_POWER_MODE_CONFIG['heat_map_limit']:
+        if settings.VNOJ_LOW_POWER_MODE and submissions_count > settings.VNOJ_LOW_POWER_MODE_CONFIG['heat_map_limit']:
             submissions = []
         else:
             submissions = (
@@ -541,6 +541,17 @@ def generate_api_token(request):
         revisions.set_user(request.user)
         revisions.set_comment(_('Generated API token for user'))
         return JsonResponse({'data': {'token': profile.generate_api_token()}})
+
+
+@require_POST
+@login_required
+def set_theme(request):
+    theme = request.POST.get('theme', 'light')
+    if theme not in ('light', 'dark', 'auto'):
+        theme = 'light'
+    request.profile.site_theme = theme
+    request.profile.save(update_fields=['site_theme'])
+    return HttpResponseRedirect(request.POST.get('next', '/'))
 
 
 @require_POST
