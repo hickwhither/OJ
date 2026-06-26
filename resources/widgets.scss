@@ -85,7 +85,7 @@ input {
     &[type=text], &[type=password], &[type=email], &[type=number], &[type=url] {
         padding: 4px 8px;
         color: $color_primary75;
-        background: $color_primary0 none;
+        background: $color_primary36 none;
         border: 1px solid $color_primary25;
         border-radius: $widget_border_radius;
         box-shadow: 0 1px 1px rgba($color_primary100, 0.075) inset;
@@ -116,7 +116,7 @@ input {
         appearance: none;
         vertical-align: middle;
         border: 1px solid $color_primary50;
-        background: $color_primary0;
+        background: $color_primary36;
         border-radius: 2px;
         width: 0.95em;
         height: 0.95em;
@@ -132,7 +132,7 @@ input {
 textarea {
     padding: 4px 8px;
     color: $color_primary75;
-    background: $color_primary0 none;
+    background: $color_primary36 none;
     border: 1px solid $color_primary25;
     border-radius: $widget_border_radius;
     box-shadow: 0 1px 1px rgba($color_primary100, 0.075) inset;
