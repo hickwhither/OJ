@@ -99,6 +99,7 @@ VNOJ_DISPLAY_RANKS = (
     ('user', _('Normal User')),
     ('gay', _('Gay')),
     ('champion', _('Latest Champion')),
+    ('rainbow', _('Cầu vồng trong tim em')),
 
     ('setter', _('Problem Setter')),
     ('daor', _('Bedao Team')),
@@ -106,7 +107,6 @@ VNOJ_DISPLAY_RANKS = (
     ('banned', _('Banned User')),
     ('admin', _('Admin')),
     ('teacher', _('Teacher')),
-
 )
 
 # Maximum number of organization a single user can be admin, to be able to
