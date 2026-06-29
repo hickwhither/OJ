@@ -145,7 +145,7 @@ tr:has(.champion)::after {
         transparent 45%,
         rgba(255, 255, 255, 0.03) 50%,
         transparent 55%
-    ) !important;
+    ) ;
 
     background-size: 250% 100%;
     animation: championShine 30s linear infinite;
