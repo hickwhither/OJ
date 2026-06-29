@@ -1,6 +1,6 @@
 # TCOJ - Together Cpp Online Judge
 
-See it live at [oj.tcpp.edu.vn](https://oj.tcpp.edu.vn/)!
+See it live at hihihi!
 
 ## Features
 
