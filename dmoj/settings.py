@@ -97,12 +97,16 @@ VNOJ_HOMEPAGE_TOP_USERS_COUNT = 5
 
 VNOJ_DISPLAY_RANKS = (
     ('user', _('Normal User')),
+    ('gay', _('Gay')),
+    ('champion', _('Latest Champion')),
+
     ('setter', _('Problem Setter')),
     ('daor', _('Bedao Team')),
     ('staff', _('Staff')),
     ('banned', _('Banned User')),
     ('admin', _('Admin')),
     ('teacher', _('Teacher')),
+
 )
 
 # Maximum number of organization a single user can be admin, to be able to
