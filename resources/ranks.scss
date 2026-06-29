@@ -62,7 +62,7 @@
 .gay a::before{content: "🏳️‍🌈"; -webkit-text-fill-color: black; color: black !important;}
 .gay a::after{content: "🏳️‍🌈"; -webkit-text-fill-color: black; color: black !important;}
 
-.champion a::before {content: "🚩"}
+.champion a::before {content: "🏆"}
 @keyframes championGlow {
     0%,100% {
         filter: brightness(1);
@@ -71,7 +71,6 @@
         filter: brightness(1.08);
     }
 }
-
 @keyframes championShine {
     from {
         background-position: 200% 0;
@@ -103,12 +102,12 @@ table tbody tr:has(.champion):hover {
         linear-gradient(to right,  rgba(255,225,120,.28), rgba(255,225,120,.10) 2px, transparent 8px),
         linear-gradient(to left,   rgba(255,225,120,.28), rgba(255,225,120,.10) 2px, transparent 8px),
 
-        linear-gradient(#18140d,#20180e);
+        linear-gradient(#18140d,#20180e) !important;
 
     box-shadow:
         inset 0 0 36px rgba(255,220,80,.12),
         inset 0 0 10px rgba(255,255,255,.05),
-        0 0 12px rgba(255,220,80,.08);
+        0 0 12px rgba(255,220,80,.08) !important;
 }
 /* ---------- LIGHT ---------- */
 body[data-theme="light"] tr:has(.champion),
@@ -127,12 +126,12 @@ body[data-theme="light"] table tbody tr:has(.champion):hover {
         linear-gradient(to right,   rgba(255,190,30,.30), rgba(255,190,30,.08) 2px, transparent 8px),
         linear-gradient(to left,    rgba(255,190,30,.30), rgba(255,190,30,.08) 2px, transparent 8px),
 
-        linear-gradient(#fffefb,#fffaf0);
+        linear-gradient(#fffefb,#fffaf0) !important;
 
     box-shadow:
         inset 0 0 26px rgba(255,210,40,.10),
         inset 0 0 8px rgba(255,255,255,.28),
-        0 0 6px rgba(255,200,40,.05);
+        0 0 6px rgba(255,200,40,.05) !important;
 }
 /* ---------- SHIMMER ---------- */
 tr:has(.champion)::after {
@@ -146,7 +145,7 @@ tr:has(.champion)::after {
         transparent 45%,
         rgba(255, 255, 255, 0.03) 50%,
         transparent 55%
-    );
+    ) !important;
 
     background-size: 250% 100%;
     animation: championShine 30s linear infinite;
